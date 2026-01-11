@@ -6,16 +6,24 @@ const backBtn = document.getElementById('back-btn');
 const searchInput = document.getElementById('search-input');
 const settingsTitle = document.getElementById('settings-title');
 const settingsForm = document.getElementById('settings-form');
+const themeBtn = document.getElementById('theme-btn');
 
 // State
 let allModules = availableModules;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // טעינת הגדרות שמורות
+    // 1. טעינת הגדרות שמורות
     const savedData = await chrome.storage.sync.get(null);
+    
+    // 2. ניהול מצב כהה (Dark Mode)
+    // בדיקה אם המשתמש שמר מצב כהה בעבר
+    const isDark = (savedData.theme === 'dark'); 
+    updateThemeUI(isDark);
+
+    // 3. בניית רשימת המודולים
     renderModulesList(savedData);
     
-    // חיפוש
+    // 4. האזנה לחיפוש
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
         const items = document.querySelectorAll('.module-item');
@@ -25,9 +33,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // כפתור חזור
+    // 5. כפתור חזור
     backBtn.addEventListener('click', closeSettings);
+
+    // 6. כפתור החלפת ערכת נושא
+    themeBtn.addEventListener('click', () => {
+        const isCurrentlyDark = document.body.classList.contains('dark-mode');
+        const newMode = !isCurrentlyDark;
+        
+        updateThemeUI(newMode);
+        
+        // שמירה בזיכרון
+        chrome.storage.sync.set({ theme: newMode ? 'dark' : 'light' });
+    });
 });
+
+// פונקציה לעדכון המראה (UI) של מצב כהה/בהיר
+function updateThemeUI(isDark) {
+    // הוספה או הסרה של הקלאס ב-body
+    document.body.classList.toggle('dark-mode', isDark);
+    
+    // שינוי האייקון בכפתור
+    if (isDark) {
+        // אייקון שמש (למצב כהה)
+        themeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+    } else {
+        // אייקון ירח (למצב בהיר)
+        themeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+}
 
 function renderModulesList(storageData) {
     modulesList.innerHTML = '';
@@ -61,7 +95,7 @@ function renderModulesList(storageData) {
             </div>
         `;
 
-        // הוספת לוגיקה
+        // הוספת לוגיקה לאלמנטים שנוצרו
         const toggle = li.querySelector('.toggle-feature');
         const settingsBtn = li.querySelector('.settings-btn');
 
@@ -70,7 +104,7 @@ function renderModulesList(storageData) {
             const newState = e.target.checked;
             await chrome.storage.sync.set({ [`${config.id}_enabled`]: newState });
             
-            // עדכון כפתור ההגדרות
+            // עדכון כפתור ההגדרות (אם קיים)
             if(settingsBtn) {
                 if(newState) {
                     settingsBtn.removeAttribute('disabled');
@@ -81,8 +115,10 @@ function renderModulesList(storageData) {
                 }
             }
             
-            // הודעה לרקע לטעון מחדש (אופציונלי, לרוב רענון דף מספיק)
-            chrome.runtime.sendMessage({ type: 'STATUS_CHANGED', id: config.id, active: newState });
+            // רענון הטאב הפעיל כדי שהשינויים יחולו מיד (אופציונלי)
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                if(tabs[0]) chrome.tabs.reload(tabs[0].id);
+            });
         });
 
         // כניסה להגדרות
@@ -101,56 +137,61 @@ function openSettings(module, storageData) {
     settingsForm.innerHTML = ''; // ניקוי טופס ישן
     
     // יצירת שדות טופס דינמית
-    module.config.settings.forEach(field => {
-        const container = document.createElement('div');
-        container.className = 'form-group';
-        
-        const label = document.createElement('label');
-        label.className = 'form-label';
-        label.innerText = field.label;
-        
-        let input;
-        const storageKey = `${module.config.id}_${field.key}`;
-        const value = storageData[storageKey] !== undefined ? storageData[storageKey] : field.default;
+    if (module.config.settings) {
+        module.config.settings.forEach(field => {
+            const container = document.createElement('div');
+            container.className = 'form-group';
+            
+            const label = document.createElement('label');
+            label.className = 'form-label';
+            label.innerText = field.label;
+            
+            let input;
+            const storageKey = `${module.config.id}_${field.key}`;
+            // שימוש בערך השמור או בברירת המחדל
+            const value = storageData[storageKey] !== undefined ? storageData[storageKey] : field.default;
 
-        if (field.type === 'text' || field.type === 'number') {
-            input = document.createElement('input');
-            input.type = field.type;
-            input.className = 'form-input-text';
-            input.value = value;
-        } else if (field.type === 'color') {
-            input = document.createElement('input');
-            input.type = 'color';
-            input.className = 'form-input-color';
-            input.value = value;
-        } else if (field.type === 'range') {
-            input = document.createElement('input');
-            input.type = 'range';
-            input.className = 'form-input-range';
-            input.min = field.min || 0;
-            input.max = field.max || 100;
-            input.value = value;
-        } else if (field.type === 'select') {
-            input = document.createElement('select');
-            input.className = 'form-select';
-            field.options.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt.value;
-                option.innerText = opt.text;
-                if (opt.value === value) option.selected = true;
-                input.appendChild(option);
+            if (field.type === 'text' || field.type === 'number') {
+                input = document.createElement('input');
+                input.type = field.type;
+                input.className = 'form-input-text';
+                input.value = value;
+            } else if (field.type === 'color') {
+                input = document.createElement('input');
+                input.type = 'color';
+                input.className = 'form-input-color';
+                input.value = value;
+            } else if (field.type === 'range') {
+                input = document.createElement('input');
+                input.type = 'range';
+                input.className = 'form-input-range';
+                input.min = field.min || 0;
+                input.max = field.max || 100;
+                input.value = value;
+            } else if (field.type === 'select') {
+                input = document.createElement('select');
+                input.className = 'form-select';
+                field.options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.innerText = opt.text;
+                    if (opt.value === value) option.selected = true;
+                    input.appendChild(option);
+                });
+            }
+
+            // שמירה אוטומטית בשינוי
+            input.addEventListener('change', (e) => {
+                chrome.storage.sync.set({ [storageKey]: e.target.value });
+                // עדכון האובייקט המקומי כדי שההגדרות ישמרו במעבר בין מסכים ללא רענון
+                storageData[storageKey] = e.target.value;
             });
-        }
 
-        // שמירה אוטומטית בשינוי
-        input.addEventListener('change', (e) => {
-            chrome.storage.sync.set({ [storageKey]: e.target.value });
+            container.appendChild(label);
+            container.appendChild(input);
+            settingsForm.appendChild(container);
         });
-
-        container.appendChild(label);
-        container.appendChild(input);
-        settingsForm.appendChild(container);
-    });
+    }
 
     // אנימציה
     document.body.classList.add('in-settings');

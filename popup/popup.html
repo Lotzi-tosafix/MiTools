@@ -11,17 +11,22 @@
     <!-- כותרת ראשית קבועה -->
     <header class="app-header">
         <div class="logo-area">
-            <!-- אייקון חדש: מפתח ברגים (Wrench) במקום הקופסה -->
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
             </svg>
             <span>MiTools</span>
         </div>
-        <button id="back-btn" class="icon-btn hidden">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6"/>
-            </svg>
-        </button>
+        <div class="header-actions">
+            <button id="theme-btn" class="icon-btn theme-btn" title="החלף ערכת נושא">
+                <!-- יוחלף דינמית ב-JS -->
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <button id="back-btn" class="icon-btn hidden">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
     </header>
 
     <!-- אזור התוכן הראשי עם אנימציית החלפה -->

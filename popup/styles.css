@@ -1,13 +1,27 @@
 :root {
+    /* משתנים למצב בהיר (ברירת מחדל) */
+    --bg-color: #ffffff;
+    --card-bg: #f8f9fa;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --border: #e2e8f0;
+    --toggle-bg: #cbd5e1;
+    --header-bg: rgba(255, 255, 255, 0.95);
+}
+
+/* מצב כהה - יופעל כשיש class="dark-mode" על ה-body */
+body.dark-mode {
     --bg-color: #0f172a;
     --card-bg: #1e293b;
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --accent: #3b82f6;
     --accent-hover: #2563eb;
-    --danger: #ef4444;
     --border: #334155;
     --toggle-bg: #475569;
+    --header-bg: rgba(15, 23, 42, 0.95);
 }
 
 * { box-sizing: border-box; user-select: none; }
@@ -15,14 +29,15 @@
 body {
     margin: 0;
     padding: 0;
-    width: 360px;
-    height: 500px;
+    width: 380px; /* קצת רחב יותר לדשבורד */
+    height: 550px;
     background-color: var(--bg-color);
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* Header */
@@ -33,7 +48,7 @@ body {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--border);
-    background: rgba(15, 23, 42, 0.95);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
     z-index: 10;
 }
@@ -45,6 +60,11 @@ body {
     font-weight: 700;
     font-size: 18px;
     color: var(--accent);
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
 }
 
 .icon-btn {
@@ -62,6 +82,9 @@ body {
 
 .icon-btn:hover { background: var(--card-bg); color: var(--text-primary); }
 .hidden { display: none !important; }
+
+/* Theme Toggle Button specific */
+.theme-btn svg { fill: currentColor; }
 
 /* Views & Animation */
 .views-container {
@@ -82,12 +105,9 @@ body {
     background: var(--bg-color);
 }
 
-/* Slide Logic (RTL specific) */
-/* Home is visible by default */
+/* Slide Logic (RTL) */
 #view-home { transform: translateX(0); }
 #view-settings { transform: translateX(-100%); }
-
-/* When settings are active: Home moves Right, Settings moves to center */
 body.in-settings #view-home { transform: translateX(100%); }
 body.in-settings #view-settings { transform: translateX(0); }
 
@@ -101,6 +121,7 @@ body.in-settings #view-settings { transform: translateX(0); }
     border-radius: 8px;
     color: var(--text-primary);
     outline: none;
+    transition: background 0.3s, border-color 0.3s;
 }
 .search-box input:focus { border-color: var(--accent); }
 
@@ -113,7 +134,7 @@ body.in-settings #view-settings { transform: translateX(0); }
     align-items: center;
     justify-content: space-between;
     border: 1px solid transparent;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.3s;
 }
 
 .module-item:hover { border-color: var(--border); }
@@ -121,7 +142,6 @@ body.in-settings #view-settings { transform: translateX(0); }
 .module-info { flex: 1; padding-left: 10px; }
 .module-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
 .module-desc { font-size: 11px; color: var(--text-secondary); }
-
 .module-actions { display: flex; align-items: center; gap: 8px; }
 
 /* Toggle Switch */
@@ -145,22 +165,16 @@ body.in-settings #view-settings { transform: translateX(0); }
 input:checked + .slider { background-color: var(--accent); }
 input:checked + .slider:before { transform: translateX(18px); }
 
-/* Settings Form Styles */
+/* Settings Form */
 .settings-header h2 { margin: 0 0 20px 0; font-size: 18px; }
 .form-group { margin-bottom: 16px; }
 .form-label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary); }
-
 .form-input-text, .form-select {
     width: 100%; padding: 8px;
     background: var(--card-bg); border: 1px solid var(--border);
     border-radius: 6px; color: var(--text-primary);
 }
-.form-input-color {
-    width: 100%; height: 40px; border: none; padding: 0;
-    background: none; cursor: pointer;
-}
+.form-input-color { width: 100%; height: 40px; border: none; padding: 0; background: none; cursor: pointer; }
 .form-input-range { width: 100%; accent-color: var(--accent); }
-
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
