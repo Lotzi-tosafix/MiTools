@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Extension</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- כותרת ראשית קבועה -->
+    <header class="app-header">
+        <div class="logo-area">
+            <!-- אייקון חדש: מפתח ברגים (Wrench) במקום הקופסה -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+            <span>MiTools</span>
+        </div>
+        <button id="back-btn" class="icon-btn hidden">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
+    </header>
+
+    <!-- אזור התוכן הראשי עם אנימציית החלפה -->
+    <main class="views-container">
+        
+        <!-- תצוגה 1: רשימת המודולים -->
+        <div id="view-home" class="view active-view">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="חפש פיצ'ר...">
+            </div>
+            <ul id="modules-list" class="modules-list">
+                <!-- המודולים יוזרקו לכאן -->
+            </ul>
+        </div>
+
+        <!-- תצוגה 2: הגדרות דינמיות -->
+        <div id="view-settings" class="view">
+            <div class="settings-header">
+                <h2 id="settings-title">הגדרות</h2>
+            </div>
+            <div id="settings-form" class="settings-form">
+                <!-- הטופס יוזרק לכאן -->
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module" src="popup.js"></script>
+</body>
+</html>
