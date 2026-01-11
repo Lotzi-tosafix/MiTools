@@ -6,10 +6,15 @@
   3. הוסף אותו למערך modules
 */
 
+// core/registry.js
 import * as DemoDarkMode from '../modules/demo-dark-mode/config.js';
+import * as ThreadExporter from '../modules/thread-exporter/config.js';
+import * as NodebbDashboard from '../modules/nodebb-dashboard/config.js';
 
 export const availableModules = [
-    DemoDarkMode
+    DemoDarkMode,
+    ThreadExporter,
+    NodebbDashboard
 ];
 
 export function getModuleById(id) {
